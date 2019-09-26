@@ -2,10 +2,14 @@
 import csv
 import random
 import math
+import copy
  
 def loadCsv(filename):
 	lines = csv.reader(open(r'diabetes.csv'))
 	dataset = list(lines)
+	classes=copy.copy(dataset[0:1])
+	dataset=copy.copy(dataset[1:])
+	
 	for i in range(len(dataset)):
 		dataset[i] = [float(x) for x in dataset[i]]
 	return dataset
@@ -26,12 +30,13 @@ def separateByClass(dataset):
 		if (vector[-1] not in separated):
 			separated[vector[-1]] = []
 		separated[vector[-1]].append(vector)
+
 	return separated
  
 def mean(numbers):
 	return sum(numbers)/float(len(numbers))
- 
-def stdev(numbers):
+ #Desvio padrão 
+def stdev(numbers): 
 	avg = mean(numbers)
 	variance = sum([pow(x-avg,2) for x in numbers])/float(len(numbers)-1)
 	return math.sqrt(variance)
@@ -46,6 +51,8 @@ def summarizeByClass(dataset):
 	summaries = {}
 	for classValue, instances in separated.items():
 		summaries[classValue] = summarize(instances)
+	
+	
 	return summaries
  
 def calculateProbability(x, mean, stdev):
@@ -60,6 +67,7 @@ def calculateClassProbabilities(summaries, inputVector):
 			mean, stdev = classSummaries[i]
 			x = inputVector[i]
 			probabilities[classValue] *= calculateProbability(x, mean, stdev)
+	
 	return probabilities
 			
 def predict(summaries, inputVector):
@@ -69,25 +77,51 @@ def predict(summaries, inputVector):
 		if bestLabel is None or probability > bestProb:
 			bestProb = probability
 			bestLabel = classValue
+	
 	return bestLabel
+	
  
 def getPredictions(summaries, testSet):
 	predictions = []
 	for i in range(len(testSet)):
 		result = predict(summaries, testSet[i])
 		predictions.append(result)
+	print(predictions,"\n")
 	return predictions
+	
  
 def getAccuracy(testSet, predictions):
 	correct = 0
+	valorA=0
+	valorB=0
+	status=-1
+	situacao=-1
+	print(testSet[1],'\n')
+	print(testSet[1][-1],"\n")
 	for i in range(len(testSet)):
 		if testSet[i][-1] == predictions[i]:
-			correct += 1
-	return (correct/float(len(testSet))) * 100.0
+			correct+=1
+			if testSet[i][-1] ==1.0:
+				valorA+=1
+			elif testSet[i][-1] == 0.0:
+				valorB+=1
+	print(correct,"A",valorA,"B",valorB)
+	if valorA>valorB:
+		situacao=valorA
+		status=1
+	else:
+		situacao=valorB
+		status=0
+		
+	#Buscando qual a classe teve o maior acerto, acredito que estou no caminho certo, agora e fazer o teste final 
+	accuracy=(correct/float(len(testSet))) * 100.0
+
+	return accuracy,status
  
 def main():
 	filename = 'diabetes.csv'
 	splitRatio = 0.67
+	status=-1
 	dataset = loadCsv(filename)
 	trainingSet, testSet = splitDataset(dataset, splitRatio)
 	print('Split {0} rows into train={1} and test={2} rows'.format(len(dataset), len(trainingSet), len(testSet)))
@@ -95,7 +129,9 @@ def main():
 	summaries = summarizeByClass(trainingSet)
 	# test model
 	predictions = getPredictions(summaries, testSet)
-	accuracy = getAccuracy(testSet, predictions)
+	accuracy,status = getAccuracy(testSet, predictions)
 	print('Accuracy: {0}%'.format(accuracy))
+	print("S",status)
+
  
 main()

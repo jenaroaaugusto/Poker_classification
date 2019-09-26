@@ -107,21 +107,22 @@ def getAccuracy(testSet, predictions):
 				valorB+=1
 	print(correct,"A",valorA,"B",valorB)
 	if valorA>valorB:
-		situacao=valorA
+		situacao=(valorA/float(correct)) * 100.0
 		status=1
 	else:
-		situacao=valorB
+		situacao=(valorB/float(correct)) * 100.0
 		status=0
 		
 	#Buscando qual a classe teve o maior acerto, acredito que estou no caminho certo, agora e fazer o teste final 
 	accuracy=(correct/float(len(testSet))) * 100.0
 
-	return accuracy,status
+	return accuracy,status,situacao
  
 def main():
 	filename = 'diabetes.csv'
 	splitRatio = 0.67
 	status=-1
+	situacao=-1
 	dataset = loadCsv(filename)
 	trainingSet, testSet = splitDataset(dataset, splitRatio)
 	print('Split {0} rows into train={1} and test={2} rows'.format(len(dataset), len(trainingSet), len(testSet)))
@@ -129,9 +130,13 @@ def main():
 	summaries = summarizeByClass(trainingSet)
 	# test model
 	predictions = getPredictions(summaries, testSet)
-	accuracy,status = getAccuracy(testSet, predictions)
+	accuracy,status,situacao = getAccuracy(testSet, predictions)
 	print('Accuracy: {0}%'.format(accuracy))
-	print("S",status)
+	if status==0:
+		result="Não teve diabetes" 
+	else:
+		result="Teve diabetes"
+	print("S",result,"{0}%".format(situacao))
 
  
 main()

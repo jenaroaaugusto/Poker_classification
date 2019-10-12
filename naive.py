@@ -30,7 +30,7 @@ def separateByClass(dataset):
 		if (vector[-1] not in separated):
 			separated[vector[-1]] = []
 		separated[vector[-1]].append(vector)
-
+	print(separated,'\n')
 	return separated
  
 def mean(numbers):
@@ -137,6 +137,7 @@ def main():
 	else:
 		result="Teve diabetes"
 	print("S",result,"{0}%".format(situacao))
-
+	a=[]
+	a.append
  
 main()
